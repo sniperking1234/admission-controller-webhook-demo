@@ -19,12 +19,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"k8s.io/api/admission/v1beta1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"k8s.io/api/admission/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -74,8 +75,8 @@ func applySecurityDefaults(req *v1beta1.AdmissionRequest) ([]patchOperation, err
 	var patches []patchOperation
 	if runAsNonRoot == nil {
 		patches = append(patches, patchOperation{
-			Op:    "add",
-			Path:  "/spec/securityContext/runAsNonRoot",
+			Op:   "add",
+			Path: "/spec/securityContext/runAsNonRoot",
 			// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
 			// configuration ourselves.
 			Value: runAsUser == nil || *runAsUser != 0,
@@ -92,6 +93,47 @@ func applySecurityDefaults(req *v1beta1.AdmissionRequest) ([]patchOperation, err
 		// Make sure that the settings are not contradictory, and fail the object creation if they are.
 		return nil, errors.New("runAsNonRoot specified, but runAsUser set to 0 (the root user)")
 	}
+
+	return patches, nil
+}
+
+func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
+	if req.Resource != podResource {
+		log.Printf("expect resource to be %s", podResource)
+		return nil, nil
+	}
+
+	// Parse the Pod object.
+	raw := req.Object.Raw
+	pod := corev1.Pod{}
+	if _, _, err := universalDeserializer.Decode(raw, nil, &pod); err != nil {
+		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
+	}
+
+	// Create patch operations to apply sensible defaults, if those options are not set explicitly.
+	var patches []patchOperation
+
+	patches = append(patches, patchOperation{
+		Op:   "add",
+		Path: "/spec/volumes",
+		// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
+		// configuration ourselves.
+		Value: `{
+                "emptyDir": {},
+                "name": "test-add"
+            }`,
+	})
+
+	patches = append(patches, patchOperation{
+		Op:   "add",
+		Path: "/spec/containers/0/volumeMounts",
+		// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
+		// configuration ourselves.
+		Value: `{
+                        "mountPath":"/var/test",
+                        "name":"test-add"
+                    `,
+	})
 
 	return patches, nil
 }
