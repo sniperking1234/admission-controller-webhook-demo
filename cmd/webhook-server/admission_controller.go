@@ -125,6 +125,9 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, admit admitFunc) (
 		admissionReviewResponse.Response.Patch = patchBytes
 	}
 
+	pt := v1.PatchTypeJSONPatch
+	admissionReviewResponse.Response.PatchType = &pt
+
 	// Return the AdmissionReview with a response as JSON.
 	bytes, err := json.Marshal(&admissionReviewResponse)
 	if err != nil {
