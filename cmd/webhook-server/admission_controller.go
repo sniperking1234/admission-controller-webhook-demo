@@ -91,6 +91,10 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, admit admitFunc) (
 	// Step 3: Construct the AdmissionReview response.
 
 	admissionReviewResponse := v1.AdmissionReview{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "AdmissionReview",
+			APIVersion: "admission.k8s.io/v1",
+		},
 		Response: &v1.AdmissionResponse{
 			UID: admissionReviewReq.Request.UID,
 		},
