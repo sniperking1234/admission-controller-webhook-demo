@@ -49,6 +49,9 @@ metadata:
   name: demo-webhook
 webhooks:
   - name: webhook-server.webhook-demo.svc
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
+    failurePolicy: Ignore
     clientConfig:
       service:
         name: webhook-server
