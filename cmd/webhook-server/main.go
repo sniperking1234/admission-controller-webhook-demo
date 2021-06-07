@@ -114,11 +114,17 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 	log.Println("pod json is " + string(podJson))
 	// Create patch operations to apply sensible defaults, if those options are not set explicitly.
 	var patches []patchOperation
+	volume := corev1.Volume{
+		Name: "test-add",
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	}
 
 	patches = append(patches, patchOperation{
 		Op:    "add",
 		Path:  "/spec/volumes/-",
-		Value: `{\"emptyDir\":{},\"name\":\"test-add\"}`,
+		Value: volume,
 	})
 
 	//patches = append(patches, patchOperation{
