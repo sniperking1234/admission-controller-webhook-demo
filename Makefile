@@ -16,7 +16,7 @@
 
 .DEFAULT_GOAL := docker-image
 
-IMAGE ?= stackrox/admission-controller-webhook-demo:latest
+IMAGE ?= sniperking1234/admission-controller-webhook-demo:latest
 
 image/webhook-server: $(shell find . -name '*.go')
 	GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -mod=vendor -ldflags="-s -w" -o $@ ./cmd/webhook-server

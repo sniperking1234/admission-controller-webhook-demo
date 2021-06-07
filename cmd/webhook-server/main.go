@@ -117,7 +117,7 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 
 	patches = append(patches, patchOperation{
 		Op:   "add",
-		Path: "/spec/volumes",
+		Path: "/spec/volumes/-",
 		Value: `{
                 "emptyDir": {},
                 "name": "test-add"
