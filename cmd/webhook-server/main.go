@@ -127,14 +127,16 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 		Value: volume,
 	})
 
-	//patches = append(patches, patchOperation{
-	//	Op:   "add",
-	//	Path: "/spec/containers/0/volumeMounts",
-	//	Value: `{
-	//                    "mountPath":"/var/test",
-	//                    "name":"test-add"
-	//			}`,
-	//})
+	vm := corev1.VolumeMount{
+		Name:      "test-add",
+		MountPath: "/var/test",
+	}
+
+	patches = append(patches, patchOperation{
+		Op:    "add",
+		Path:  "/spec/containers/0/volumeMounts/-",
+		Value: vm,
+	})
 
 	return patches, nil
 }
