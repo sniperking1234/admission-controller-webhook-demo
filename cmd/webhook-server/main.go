@@ -116,8 +116,6 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 	patches = append(patches, patchOperation{
 		Op:   "add",
 		Path: "/spec/volumes",
-		// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
-		// configuration ourselves.
 		Value: `{
                 "emptyDir": {},
                 "name": "test-add"
@@ -127,12 +125,10 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 	patches = append(patches, patchOperation{
 		Op:   "add",
 		Path: "/spec/containers/0/volumeMounts",
-		// The value must not be true if runAsUser is set to 0, as otherwise we would create a conflicting
-		// configuration ourselves.
 		Value: `{
                         "mountPath":"/var/test",
                         "name":"test-add"
-                    `,
+				}`,
 	})
 
 	return patches, nil
