@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -109,7 +110,8 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
 	if _, _, err := universalDeserializer.Decode(raw, nil, &pod); err != nil {
 		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
 	}
-
+	podJson, _ := json.Marshal(pod)
+	log.Println("pod json is " + string(podJson))
 	// Create patch operations to apply sensible defaults, if those options are not set explicitly.
 	var patches []patchOperation
 
@@ -122,14 +124,14 @@ func applyPath(req *v1beta1.AdmissionRequest) ([]patchOperation, error) {
             }`,
 	})
 
-	patches = append(patches, patchOperation{
-		Op:   "add",
-		Path: "/spec/containers/0/volumeMounts",
-		Value: `{
-                        "mountPath":"/var/test",
-                        "name":"test-add"
-				}`,
-	})
+	//patches = append(patches, patchOperation{
+	//	Op:   "add",
+	//	Path: "/spec/containers/0/volumeMounts",
+	//	Value: `{
+	//                    "mountPath":"/var/test",
+	//                    "name":"test-add"
+	//			}`,
+	//})
 
 	return patches, nil
 }
